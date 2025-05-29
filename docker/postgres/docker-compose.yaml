@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+  db:
+    container_name: stsl-postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: stsl_db
+      POSTGRES_USER: stsl_admin
+      POSTGRES_PASSWORD: cGJ55Lg8Iv6knppIFNXM
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+    - postgres-stsl-data:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5438:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stsl_admin -d stsl_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+    networks:
+      - stsl-network
+
+  pgadmin:
+    container_name: stsl-pgadmin
+    image: dpage/pgadmin4:9.3
+    volumes:
+      - pgadmin-stsl-data:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "kurbangaliev@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "J7KZ4cmjKywx6dQEZ36D"
+    ports:
+      - "5053:80"
+    depends_on:
+      - db
+    restart: always
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+    networks:
+      - stsl-network
+
+volumes:
+  postgres-stsl-data:
+  pgadmin-stsl-data:
+
+networks:
+  stsl-network:
+    driver: bridge
